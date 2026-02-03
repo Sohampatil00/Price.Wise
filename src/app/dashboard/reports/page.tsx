@@ -133,11 +133,11 @@ export default function ReportsPage() {
     }
 
     let csvString = '';
-    let fileName = `equitable-edge-report-${new Date().toISOString().split('T')[0]}.csv`;
+    let fileName = `pricewise-report-${new Date().toISOString().split('T')[0]}.csv`;
 
     if (reportType === 'full') {
         const { analysis, name, type, region, targetCustomer } = onboardingData;
-        csvString += `Equitable Edge Full Report for,${escapeCsvCell(name)}\n\n`;
+        csvString += `PriceWise Full Report for,${escapeCsvCell(name)}\n\n`;
         csvString += "AI Analysis Summary\n";
         csvString += `${escapeCsvCell(analysis!.summary)}\n\n`;
         csvString += "Business Information\n";

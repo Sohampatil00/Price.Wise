@@ -9,7 +9,7 @@ export default function OnboardingPage() {
           <div className="text-center mb-8">
             <Logo className="justify-center text-3xl mb-2" />
             <h1 className="text-4xl font-bold font-headline text-foreground">
-              Welcome to Equitable Edge
+              Welcome to PriceWise
             </h1>
             <p className="text-muted-foreground mt-2 text-lg">
               Let's set up your business for intelligent pricing and supply chain management.

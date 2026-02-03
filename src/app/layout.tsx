@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { AppStateProvider } from './providers';
 
 export const metadata: Metadata = {
-  title: 'Equitable Edge',
+  title: 'PriceWise',
   description: 'An AI-powered pricing and supply chain management platform.',
 };
 
