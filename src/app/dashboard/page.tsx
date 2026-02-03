@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   Calendar as CalendarIcon,
   DollarSign,
@@ -31,6 +32,21 @@ import { useToast } from "@/hooks/use-toast";
 export default function DashboardPage() {
   const { onboardingData } = useAppState();
   const { toast } = useToast();
+
+  const activeProductsCount = useMemo(() => {
+    if (!onboardingData.salesHistory) {
+      return onboardingData.productCount || 0;
+    }
+    const salesLines = onboardingData.salesHistory.split('\n').slice(1).filter(line => line.trim() !== '');
+    const productSet = new Set<string>();
+    salesLines.forEach(line => {
+      const columns = line.split(',');
+      if (columns.length > 1 && columns[1]) {
+        productSet.add(columns[1].trim());
+      }
+    });
+    return productSet.size;
+  }, [onboardingData.salesHistory, onboardingData.productCount]);
 
   const handleDownloadReport = () => {
     if (!onboardingData.analysis) {
@@ -150,7 +166,7 @@ export default function DashboardPage() {
                 <Package className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">+{onboardingData.productCount || '0'}</div>
+                <div className="text-2xl font-bold">+{activeProductsCount}</div>
                 <p className="text-xs text-muted-foreground">
                   Across your inventory
                 </p>
