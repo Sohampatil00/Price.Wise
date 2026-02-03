@@ -99,9 +99,6 @@ export function MainSidebar({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarInset>
         <div className="flex-1">{children}</div>
-        <footer className="text-center p-4 text-muted-foreground text-sm border-t">
-          made with love by Soham
-        </footer>
         <AiAssistant open={isAssistantOpen} onOpenChange={setIsAssistantOpen} />
       </SidebarInset>
     </SidebarProvider>

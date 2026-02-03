@@ -18,9 +18,6 @@ export default function OnboardingPage() {
           <OnboardingClientWrapper />
         </div>
       </main>
-      <footer className="text-center p-4 text-muted-foreground text-sm">
-        made with love by Soham
-      </footer>
     </div>
   );
 }
