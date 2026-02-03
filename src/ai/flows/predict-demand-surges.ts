@@ -21,18 +21,31 @@ const PredictDemandSurgeInputSchema = z.object({
 });
 export type PredictDemandSurgeInput = z.infer<typeof PredictDemandSurgeInputSchema>;
 
+const SurgePredictionSchema = z.object({
+    productName: z.string().describe('The name of the product.'),
+    predictedSurgeDate: z.string().describe('The estimated date of the demand surge (e.g., YYYY-MM-DD).'),
+    surgeFactor: z.number().describe('The predicted increase in demand (e.g., 1.5 for a 50% increase).'),
+});
+
+const StockRiskSchema = z.object({
+    productName: z.string().describe('The name of the product.'),
+    riskDate: z.string().describe('The estimated date of stockout risk (e.g., YYYY-MM-DD).'),
+    daysOfStockLeft: z.number().describe('Estimated number of days of stock remaining at current consumption rates.'),
+});
+
+const RecommendedActionSchema = z.object({
+    action: z.string().describe('A brief description of the recommended action (e.g., "Reorder Stock", "Adjust Price").'),
+    productName: z.string().describe('The product this action applies to.'),
+    details: z.string().describe('Specific details for the action, such as quantity to reorder or new price point.'),
+    priority: z.enum(['high', 'medium', 'low']).describe('The priority of the action.'),
+});
+
+
 const PredictDemandSurgeOutputSchema = z.object({
-  predictedDemandSurges: z
-    .string()
-    .describe('Predicted demand surges for each product with dates.'),
-  stockRiskProducts: z
-    .string()
-    .describe('Products at risk of stockout with estimated risk dates.'),
-  recommendedActions: z
-    .string()
-    .describe(
-      'Recommended actions, including pricing adjustments, reorder alerts, and stock distribution changes.'
-    ),
+  summary: z.string().describe('A brief, high-level summary of the supply chain analysis.'),
+  predictedDemandSurges: z.array(SurgePredictionSchema).describe('A list of predicted demand surges for key products.'),
+  stockRiskProducts: z.array(StockRiskSchema).describe('A list of products at risk of stocking out.'),
+  recommendedActions: z.array(RecommendedActionSchema).describe('A prioritized list of actions to mitigate risks and capitalize on opportunities.'),
 });
 export type PredictDemandSurgeOutput = z.infer<typeof PredictDemandSurgeOutputSchema>;
 
@@ -52,9 +65,13 @@ Historical Sales Data: {{{historicalSalesData}}}
 Current Inventory Levels: {{{currentInventoryLevels}}}
 Supplier Lead Time (days): {{{leadTimeDays}}}
 
-Based on this information, predict potential demand surges, identify products at risk of stockout, and recommend actions to prevent shortages. Consider pricing adjustments, reorder alerts, and stock distribution changes.  Your analysis should be thorough and specific.
+Based on this information:
+1. Provide a brief, high-level summary of the analysis.
+2. Predict potential demand surges for key products. Include the product name, estimated surge date, and the factor of demand increase.
+3. Identify products at risk of stockout. For each, provide the product name, the estimated risk date, and the estimated days of stock left.
+4. Recommend prioritized actions (high, medium, low) to mitigate risks. Actions could include reordering, price adjustments, or stock redistribution. Be specific in your recommendations.
 
-Output should be in a human-readable format.`,
+Output MUST be a valid JSON object matching the defined schema.`,
 });
 
 const predictDemandSurgeFlow = ai.defineFlow(

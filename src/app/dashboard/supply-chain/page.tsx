@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Warehouse, Loader2, Sparkles, AlertTriangle, Check, ListChecks } from "lucide-react";
+import { Warehouse, Loader2, Sparkles, AlertTriangle, ListChecks, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { predictDemandSurge, PredictDemandSurgeOutput } from "@/ai/flows/predict-demand-surges";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 const demandSchema = z.object({
   historicalSalesData: z.string().min(10, "Please provide sample sales data."),
@@ -100,23 +102,92 @@ export default function SupplyChainPage() {
                         <Warehouse className="text-primary"/>
                         Supply Chain Analysis
                         </CardTitle>
+                        <CardDescription>{result.summary}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <Alert>
-                            <Sparkles className="h-4 w-4"/>
-                            <AlertTitle>Predicted Demand Surges</AlertTitle>
-                            <AlertDescription className="whitespace-pre-wrap">{result.predictedDemandSurges}</AlertDescription>
-                        </Alert>
-                         <Alert variant="destructive">
-                            <AlertTriangle className="h-4 w-4"/>
-                            <AlertTitle>Stock Risk Products</AlertTitle>
-                            <AlertDescription className="whitespace-pre-wrap">{result.stockRiskProducts}</AlertDescription>
-                        </Alert>
-                         <Alert className="bg-accent/10 border-accent/20">
-                            <ListChecks className="h-4 w-4 text-accent"/>
-                            <AlertTitle className="text-accent">Recommended Actions</AlertTitle>
-                            <AlertDescription className="whitespace-pre-wrap text-accent-foreground/80">{result.recommendedActions}</AlertDescription>
-                        </Alert>
+                        <div>
+                            <h3 className="font-semibold mb-2 flex items-center gap-2"><TrendingUp className="h-5 w-5 text-primary"/>Predicted Demand Surges</h3>
+                            {result.predictedDemandSurges.length > 0 ? (
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Product</TableHead>
+                                            <TableHead>Surge Date</TableHead>
+                                            <TableHead>Increase</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {result.predictedDemandSurges.map((surge) => (
+                                            <TableRow key={surge.productName}>
+                                                <TableCell className="font-medium">{surge.productName}</TableCell>
+                                                <TableCell>{surge.predictedSurgeDate}</TableCell>
+                                                <TableCell className="font-mono">{surge.surgeFactor}x</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            ) : (
+                                <p className="text-sm text-muted-foreground p-4 text-center">No significant demand surges predicted.</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <h3 className="font-semibold mb-2 flex items-center gap-2"><AlertTriangle className="h-5 w-5 text-destructive"/>Stock Risk Products</h3>
+                            {result.stockRiskProducts.length > 0 ? (
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Product</TableHead>
+                                            <TableHead>Est. Stockout</TableHead>
+                                            <TableHead>Days Left</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {result.stockRiskProducts.map((risk) => (
+                                            <TableRow key={risk.productName}>
+                                                <TableCell className="font-medium">{risk.productName}</TableCell>
+                                                <TableCell>{risk.riskDate}</TableCell>
+                                                <TableCell>{risk.daysOfStockLeft} days</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            ) : (
+                                <p className="text-sm text-muted-foreground p-4 text-center">No products at immediate risk of stockout.</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <h3 className="font-semibold mb-2 flex items-center gap-2"><ListChecks className="h-5 w-5 text-accent"/>Recommended Actions</h3>
+                            {result.recommendedActions.length > 0 ? (
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Priority</TableHead>
+                                            <TableHead>Action</TableHead>
+                                            <TableHead>Product</TableHead>
+                                            <TableHead>Details</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {result.recommendedActions.map((action, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell>
+                                                    <Badge variant={action.priority === 'high' ? 'destructive' : action.priority === 'medium' ? 'secondary' : 'outline'} className="capitalize">
+                                                        {action.priority}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>{action.action}</TableCell>
+                                                <TableCell>{action.productName}</TableCell>
+                                                <TableCell>{action.details}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            ) : (
+                                <p className="text-sm text-muted-foreground p-4 text-center">No immediate actions recommended.</p>
+                            )}
+                        </div>
                     </CardContent>
                 </Card>
             )}
