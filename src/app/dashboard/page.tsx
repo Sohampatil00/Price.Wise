@@ -25,7 +25,6 @@ import { DemandForecastCard } from "@/components/dashboard/demand-forecast-card"
 import { InventoryHealthCard } from "@/components/dashboard/inventory-health-card";
 import { ProfitFairnessCard } from "@/components/dashboard/profit-fairness-card";
 import { RecentSalesCard } from "@/components/dashboard/recent-sales-card";
-import EmergencyStatusCard from "@/components/dashboard/emergency-status-card";
 import { useAppState } from "@/lib/store";
 
 export default function DashboardPage() {
@@ -53,7 +52,7 @@ export default function DashboardPage() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
@@ -68,7 +67,6 @@ export default function DashboardPage() {
                 </p>
               </CardContent>
             </Card>
-            <EmergencyStatusCard />
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">

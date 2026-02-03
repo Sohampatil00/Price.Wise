@@ -5,7 +5,6 @@ import {
   BarChart3,
   Home,
   Package,
-  ShieldAlert,
   Users,
   Warehouse,
   FileText,
@@ -36,7 +35,6 @@ const navItems = [
   { href: "/dashboard/pricing", icon: BarChart3, label: "Pricing" },
   { href: "/dashboard/supply-chain", icon: Warehouse, label: "Supply Chain" },
   { href: "/dashboard/competitors", icon: Users, label: "Competitors" },
-  { href: "/dashboard/emergency", icon: ShieldAlert, label: "Emergency" },
   { href: "/dashboard/reports", icon: FileText, label: "Reports" },
   { href: "/dashboard/profile", icon: User, label: "Profile" },
 ];
