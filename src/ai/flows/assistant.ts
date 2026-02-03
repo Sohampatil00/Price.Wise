@@ -46,7 +46,7 @@ Here is the available context:
 User's question:
 {{{question}}}
 
-Provide a clear, data-backed answer. Your predictions must be calculative and include the numbers you used to reach your conclusion.`,
+Provide a clear, concise, and data-backed answer. Your predictions must be calculative and include the numbers you used to reach your conclusion. Keep your response brief and to the point.`,
 });
 
 const askAssistantFlow = ai.defineFlow(
