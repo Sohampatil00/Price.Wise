@@ -36,31 +36,17 @@ const prompt = ai.definePrompt({
   name: 'askAssistantPrompt',
   input: {schema: AskAssistantInputSchema},
   output: {schema: AskAssistantOutputSchema},
-  prompt: `You are a dynamic pricing assistant.
-
-Always respond using available data.
-
-If product, demand, and market data exist, you MUST analyze and answer.
-
-Only say "Current data is insufficient to determine pricing." if no product price, no demand info, and no competitor price are provided.
+  prompt: `You are an expert business assistant for pricing and supply chain.
+Your goal is to answer the user's question and provide predictions based on the available data context.
+Analyze all the provided information to give the most accurate and helpful response.
 
 Here is the available context:
-<context>
 {{{context}}}
-</context>
 
-User's query:
-<question>
+User's question:
 {{{question}}}
-</question>
 
-When analyzing the data, you must:
-- Analyze demand trends
-- Compare competitor prices
-- Consider stock levels
-- Apply pricing rules logically
-
-Provide a clear, data-backed pricing explanation in simple business language.`,
+Provide a clear, data-backed answer. If you are making a prediction, state it clearly.`,
 });
 
 const askAssistantFlow = ai.defineFlow(
