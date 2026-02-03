@@ -62,6 +62,7 @@ const calculateFairPriceFlow = ai.defineFlow(
     name: 'calculateFairPriceFlow',
     inputSchema: CalculateFairPriceInputSchema,
     outputSchema: CalculateFairPriceOutputSchema,
+    model: 'gemini-1.5-flash-latest',
   },
   async input => {
     const {output} = await prompt(input);

@@ -61,6 +61,7 @@ const askAssistantFlow = ai.defineFlow(
     name: 'askAssistantFlow',
     inputSchema: AskAssistantInputSchema,
     outputSchema: AskAssistantOutputSchema,
+    model: 'gemini-1.5-flash-latest',
   },
   async input => {
     const {output} = await prompt(input);
