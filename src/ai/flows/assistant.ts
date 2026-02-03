@@ -36,7 +36,7 @@ const prompt = ai.definePrompt({
   name: 'askAssistantPrompt',
   input: {schema: AskAssistantInputSchema},
   output: {schema: AskAssistantOutputSchema},
-  prompt: `You are an expert business assistant for pricing and supply chain.
+  prompt: `You are an expert business assistant for pricing and supply chain. Your answers must use "Rs" for currency, not "$".
 Your goal is to answer the user's question by providing data-backed, calculative, and predictive answers.
 Analyze all the provided information to give the most accurate and helpful response. When making predictions, provide specific numbers and calculations.
 
