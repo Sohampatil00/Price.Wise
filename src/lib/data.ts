@@ -1,19 +1,4 @@
-export const demandForecastData = [
-    { month: "Jan", demand: Math.floor(Math.random() * 2000) + 1000 },
-    { month: "Feb", demand: Math.floor(Math.random() * 2000) + 1200 },
-    { month: "Mar", demand: Math.floor(Math.random() * 2000) + 1500 },
-    { month: "Apr", demand: Math.floor(Math.random() * 2000) + 1300 },
-    { month: "May", demand: Math.floor(Math.random() * 2000) + 1600 },
-    { month: "Jun", demand: Math.floor(Math.random() * 2000) + 2000 },
-    { month: "Jul", demand: Math.floor(Math.random() * 2000) + 2300 },
-    { month: "Aug", demand: Math.floor(Math.random() * 2000) + 2200 },
-    { month: "Sep", demand: Math.floor(Math.random() * 2000) + 2500 },
-    { month: "Oct", demand: Math.floor(Math.random() * 2000) + 2100 },
-    { month: "Nov", demand: Math.floor(Math.random() * 2000) + 2700 },
-    { month: "Dec", demand: Math.floor(Math.random() * 2000) + 3000 },
-  ];
-  
-  export const recentSalesData = [
+export const recentSalesData = [
     { name: "Olivia Martin", email: "olivia.martin@email.com", sale: 1999.0, avatar: "https://picsum.photos/seed/1/40/40" },
     { name: "Jackson Lee", email: "jackson.lee@email.com", sale: 39.0, avatar: "https://picsum.photos/seed/2/40/40" },
     { name: "Isabella Nguyen", email: "isabella.nguyen@email.com", sale: 299.0, avatar: "https://picsum.photos/seed/3/40/40" },
