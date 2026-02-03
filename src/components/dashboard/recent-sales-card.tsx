@@ -7,14 +7,10 @@ import { useAppState } from '@/lib/store';
 
 type RecentSale = {
   customerName: string;
-  customerEmail: string;
+  customerIdentifier: string;
   sale: number;
   avatar: string;
 };
-
-// Mock data for presentation as the CSV does not contain customer details
-const fakeNames = ["Olivia Martin", "Jackson Lee", "Isabella Nguyen", "William Kim", "Sofia Davis"];
-const generateEmail = (name: string) => `${name.toLowerCase().replace(' ', '.')}@email.com`;
 
 export function RecentSalesCard() {
   const { onboardingData } = useAppState();
@@ -29,11 +25,11 @@ export function RecentSalesCard() {
       const columns = line.split(',');
       const price = parseFloat(columns[2]);
       const quantity = parseInt(columns[3], 10);
-      const customerName = fakeNames[index % fakeNames.length];
+      const customerName = `User ${index + 1}`;
       
       return {
         customerName,
-        customerEmail: generateEmail(customerName),
+        customerIdentifier: `User ID: 00${index + 1}`,
         sale: !isNaN(price) && !isNaN(quantity) ? price * quantity : 0,
         avatar: `https://picsum.photos/seed/${index + 10}/40/40`, // Use a different seed
       };
@@ -70,12 +66,12 @@ export function RecentSalesCard() {
               <div key={index} className="flex items-center">
                 <Avatar className="h-9 w-9">
                   <AvatarImage src={sale.avatar} alt="Avatar" />
-                  <AvatarFallback>{sale.customerName.charAt(0)}</AvatarFallback>
+                  <AvatarFallback>U</AvatarFallback>
                 </Avatar>
                 <div className="ml-4 space-y-1">
                   <p className="text-sm font-medium leading-none">{sale.customerName}</p>
                   <p className="text-sm text-muted-foreground">
-                    {sale.customerEmail}
+                    {sale.customerIdentifier}
                   </p>
                 </div>
                 <div className="ml-auto font-medium">+Rs{sale.sale.toFixed(2)}</div>
