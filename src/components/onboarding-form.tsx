@@ -127,7 +127,7 @@ export default function OnboardingForm() {
     shouldUnregister: false,
   });
 
-  const { register, handleSubmit, trigger, formState: { errors, isValid } } = form;
+  const { register, handleSubmit, trigger, formState: { errors } } = form;
 
   const nextStep = async () => {
     const fields = steps[step].fields;
@@ -323,10 +323,10 @@ export default function OnboardingForm() {
                 )}
                 {analysisResult && (
                     <div className="text-left space-y-8">
-                        <Alert className="bg-accent/10 border-accent/30 text-accent-foreground">
+                        <Alert className="bg-accent/10 border-accent/30">
                             <BarChartIcon className="h-5 w-5 text-accent" />
                             <AlertTitle className="text-accent font-bold">Analysis Complete!</AlertTitle>
-                            <AlertDescription>
+                            <AlertDescription className="text-foreground">
                                 {analysisResult.summary}
                             </AlertDescription>
                         </Alert>
@@ -436,7 +436,7 @@ export default function OnboardingForm() {
         )}
         {step > 0 && analysisResult && <div />}
         {step < steps.length - 1 && (
-          <Button onClick={nextStep} disabled={!isValid}>
+          <Button onClick={nextStep}>
             Next
             <ArrowRight className="ml-2" />
           </Button>
