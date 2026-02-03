@@ -1,1 +1,7 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/dynamic-pricing-based-on-equity.ts';
+import '@/ai/flows/auto-activate-emergency-pricing.ts';
+import '@/ai/flows/predict-demand-surges.ts';
+import '@/ai/flows/analyze-sales-data.ts';
