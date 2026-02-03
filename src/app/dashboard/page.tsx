@@ -26,9 +26,84 @@ import { InventoryHealthCard } from "@/components/dashboard/inventory-health-car
 import { ProfitFairnessCard } from "@/components/dashboard/profit-fairness-card";
 import { RecentSalesCard } from "@/components/dashboard/recent-sales-card";
 import { useAppState } from "@/lib/store";
+import { useToast } from "@/hooks/use-toast";
 
 export default function DashboardPage() {
   const { onboardingData } = useAppState();
+  const { toast } = useToast();
+
+  const handleDownloadReport = () => {
+    if (!onboardingData.analysis) {
+      toast({
+        title: "No data to report",
+        description: "Please complete the onboarding process to generate a report.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const { analysis, name, type, region, targetCustomer } = onboardingData;
+
+    const escapeCsvCell = (cellData: any) => {
+        const stringData = String(cellData === null || cellData === undefined ? '' : cellData);
+        if (stringData.includes(',') || stringData.includes('"') || stringData.includes('\n')) {
+            return `"${stringData.replace(/"/g, '""')}"`;
+        }
+        return stringData;
+    };
+    
+    let csvString = "";
+
+    csvString += `Equitable Edge Report for,${escapeCsvCell(name)}\n\n`;
+
+    csvString += "AI Analysis Summary\n";
+    csvString += `${escapeCsvCell(analysis.summary)}\n\n`;
+
+    csvString += "Business Information\n";
+    csvString += `Business Name,${escapeCsvCell(name)}\n`;
+    csvString += `Business Type,${escapeCsvCell(type)}\n`;
+    csvString += `Region,${escapeCsvCell(region)}\n`;
+    csvString += `Target Customer,${escapeCsvCell(targetCustomer)}\n\n`;
+
+    csvString += "Optimal Price Ranges\n";
+    csvString += "Product Name,Min Price (Rs),Max Price (Rs)\n";
+    analysis.optimalPriceRanges.forEach(p => {
+        csvString += `${escapeCsvCell(p.productName)},${escapeCsvCell(p.minPrice.toFixed(2))},${escapeCsvCell(p.maxPrice.toFixed(2))}\n`;
+    });
+    csvString += "\n";
+
+    csvString += "Demand Elasticity\n";
+    csvString += "Product Name,Elasticity,Analysis\n";
+    analysis.demandElasticity.forEach(p => {
+        csvString += `${escapeCsvCell(p.productName)},${escapeCsvCell(p.elasticity.toFixed(2))},${escapeCsvCell(p.analysis)}\n`;
+    });
+    csvString += "\n";
+
+    csvString += "Pricing Baseline\n";
+    csvString += "Product Name,Baseline Price (Rs)\n";
+    analysis.pricingBaseline.forEach(p => {
+        csvString += `${escapeCsvCell(p.productName)},${escapeCsvCell(p.baselinePrice.toFixed(2))}\n`;
+    });
+    csvString += "\n";
+
+    csvString += "Essential Goods\n";
+    csvString += "Product Name\n";
+    analysis.essentialGoods.forEach(good => {
+        csvString += `${escapeCsvCell(good)}\n`;
+    });
+    csvString += "\n";
+
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `equitable-edge-report-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -37,7 +112,7 @@ export default function DashboardPage() {
           {onboardingData.name ? `${onboardingData.name} Dashboard` : "Seller Dashboard"}
         </h2>
         <div className="flex items-center space-x-2">
-          <Button>
+          <Button onClick={handleDownloadReport}>
             <CalendarIcon className="mr-2 h-4 w-4" />
             Download Report
           </Button>
