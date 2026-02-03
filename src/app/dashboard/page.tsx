@@ -48,6 +48,47 @@ export default function DashboardPage() {
     return productSet.size;
   }, [onboardingData.salesHistory, onboardingData.productCount]);
 
+  const complianceScore = useMemo(() => {
+    if (!onboardingData.salesHistory || !onboardingData.analysis?.optimalPriceRanges || onboardingData.analysis.optimalPriceRanges.length === 0) {
+      return 100; // Default to 100% if no data to analyze
+    }
+
+    const priceRanges = new Map(onboardingData.analysis.optimalPriceRanges.map(p => [p.productName.trim().toLowerCase(), { min: p.minPrice, max: p.maxPrice }]));
+    
+    const salesLines = onboardingData.salesHistory.split('\n').slice(1).filter(line => line.trim() !== '');
+    
+    if (salesLines.length === 0) {
+      return 100;
+    }
+
+    let compliantSales = 0;
+    let totalSalesWithRange = 0;
+    
+    salesLines.forEach(line => {
+      const columns = line.split(',');
+      if (columns.length >= 4) {
+        const productName = columns[1].trim().toLowerCase();
+        const price = parseFloat(columns[2]);
+        
+        const range = priceRanges.get(productName);
+        if (range) {
+          totalSalesWithRange++;
+          if (price >= range.min && price <= range.max) {
+            compliantSales++;
+          }
+        }
+      }
+    });
+    
+    if (totalSalesWithRange === 0) {
+        return 100;
+    }
+
+    return (compliantSales / totalSalesWithRange) * 100;
+
+  }, [onboardingData.salesHistory, onboardingData.analysis]);
+
+
   const handleDownloadReport = () => {
     if (!onboardingData.analysis) {
       toast({
@@ -180,9 +221,9 @@ export default function DashboardPage() {
                 <ShieldCheck className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">98.2%</div>
+                <div className="text-2xl font-bold">{complianceScore.toFixed(1)}%</div>
                 <p className="text-xs text-muted-foreground">
-                  +2% from last month
+                  Alignment with AI price recommendations
                 </p>
               </CardContent>
             </Card>
