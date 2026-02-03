@@ -278,7 +278,7 @@ export default function OnboardingForm() {
             {step === 2 && (
               <div>
                 <Label htmlFor="salesHistory" className="text-base">Upload Sales History</Label>
-                <p className="text-muted-foreground text-sm mb-4">Provide a CSV file with columns: date, product_id, price, quantity_sold.</p>
+                <p className="text-muted-foreground text-sm mb-4">Provide a CSV file with columns: date, product_name, price, quantity.</p>
                 <Input
                   id="salesHistory"
                   type="file"

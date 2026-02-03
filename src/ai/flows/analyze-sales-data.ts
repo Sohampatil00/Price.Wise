@@ -15,7 +15,7 @@ const AnalyzeSalesDataInputSchema = z.object({
   salesData: z
     .string()
     .describe(
-      'Historical sales data in CSV format. Columns should include date, product ID, price, and quantity sold.'
+      'Historical sales data in CSV format. Columns should include date, product_name, price, and quantity.'
     ),
   businessDetails: z
     .string()
