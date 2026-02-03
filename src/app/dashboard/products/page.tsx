@@ -26,14 +26,13 @@ export default function ProductsPage() {
             }
         });
 
-        const essentialTags = (onboardingData.analysis?.essentialGoodsTags || '')
-            .split(',')
+        const essentialGoods = (onboardingData.analysis?.essentialGoods || [])
             .map(tag => tag.trim().toLowerCase());
         
         return Array.from(products.entries()).map(([name, data]) => ({
             name,
             value: data.stock,
-            essential: essentialTags.includes(name.toLowerCase())
+            essential: essentialGoods.includes(name.toLowerCase())
         }));
 
     }, [onboardingData]);

@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useAppState } from '@/lib/store';
-import { ChartTooltipContent } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { Badge } from '../ui/badge';
   
 export function InventoryHealthCard() {
@@ -24,14 +24,13 @@ export function InventoryHealthCard() {
             }
         });
 
-        const essentialTags = (onboardingData.analysis.essentialGoodsTags || '')
-            .split(',')
+        const essentialGoodNames = (onboardingData.analysis.essentialGoods || [])
             .map(tag => tag.trim().toLowerCase());
 
         const chartColors = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"];
 
         return Array.from(products).map((productName, index) => {
-            const isEssential = essentialTags.includes(productName.toLowerCase());
+            const isEssential = essentialGoodNames.includes(productName.toLowerCase());
             return {
                 name: productName,
                 value: Math.floor(Math.random() * 200) + 10, // Random stock value
@@ -41,6 +40,19 @@ export function InventoryHealthCard() {
         });
 
     }, [onboardingData]);
+
+    const chartConfig = useMemo(() => {
+        const config: ChartConfig = {};
+        if (inventoryData.length > 0) {
+            inventoryData.forEach((item) => {
+                config[item.name] = {
+                    label: item.name,
+                    color: item.fill,
+                };
+            });
+        }
+        return config;
+    }, [inventoryData]);
 
     const essentialGoods = inventoryData.filter(item => item.essential);
     const nonEssentialGoods = inventoryData.filter(item => !item.essential);
@@ -68,27 +80,32 @@ export function InventoryHealthCard() {
                 <CardDescription>Stock levels of essential vs. non-essential goods.</CardDescription>
             </CardHeader>
             <CardContent>
-                <div style={{ width: '100%', height: 200 }}>
-                    <ResponsiveContainer>
+                 <ChartContainer
+                    config={chartConfig}
+                    className="mx-auto aspect-square h-[200px]"
+                    >
+                    <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
-                            <Pie
-                                data={inventoryData}
-                                cx="50%"
-                                cy="50%"
-                                labelLine={false}
-                                outerRadius={80}
-                                fill="#8884d8"
-                                dataKey="value"
-                                nameKey="name"
-                            >
-                                {inventoryData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                                ))}
-                            </Pie>
-                            <Tooltip content={<ChartTooltipContent hideLabel />} />
+                        <Tooltip
+                            cursor={false}
+                            content={<ChartTooltipContent hideLabel />}
+                        />
+                        <Pie
+                            data={inventoryData}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            labelLine={false}
+                        >
+                            {inventoryData.map((entry) => (
+                                <Cell key={entry.name} fill={entry.fill} />
+                            ))}
+                        </Pie>
                         </PieChart>
                     </ResponsiveContainer>
-                </div>
+                </ChartContainer>
                 <div className="mt-4 space-y-4">
                     <div>
                         <h4 className="text-sm font-medium mb-2">Essential Goods</h4>
