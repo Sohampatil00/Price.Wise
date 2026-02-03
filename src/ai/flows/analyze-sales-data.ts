@@ -83,7 +83,7 @@ const analyzeSalesDataFlow = ai.defineFlow(
     name: 'analyzeSalesDataFlow',
     inputSchema: AnalyzeSalesDataInputSchema,
     outputSchema: AnalyzeSalesDataOutputSchema,
-    model: 'gemini-1.5-flash-latest',
+    model: 'gemini-2.5-flash',
   },
   async input => {
     const {output} = await analyzeSalesDataPrompt(input);
