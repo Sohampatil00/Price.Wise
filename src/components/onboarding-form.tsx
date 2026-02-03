@@ -92,6 +92,7 @@ export default function OnboardingForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalyzeSalesDataOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [salesFile, setSalesFile] = useState<File | null>(null);
 
   const form = useForm<FormData>({
     resolver: zodResolver(
@@ -119,7 +120,7 @@ export default function OnboardingForm() {
     setError(null);
     setAnalysisResult(null);
 
-    const file = data.salesHistory?.[0];
+    const file = salesFile;
     if (!file) {
         setError("Sales history file not found. Please go back and upload it.");
         setIsLoading(false);
@@ -147,6 +148,8 @@ export default function OnboardingForm() {
   };
 
   const progress = ((step + 1) / (steps.length + (analysisResult ? 0 : -1))) * 100;
+  
+  const salesHistoryRegistration = register("salesHistory");
 
   return (
     <Card className="w-full">
@@ -248,7 +251,21 @@ export default function OnboardingForm() {
               <div>
                 <Label htmlFor="salesHistory" className="text-base">Upload Sales History</Label>
                 <p className="text-muted-foreground text-sm mb-4">Provide a CSV file with columns: date, product_id, price, quantity_sold.</p>
-                <Input id="salesHistory" type="file" accept=".csv" {...register("salesHistory")} className="pt-2 h-auto" />
+                <Input
+                  id="salesHistory"
+                  type="file"
+                  accept=".csv"
+                  {...salesHistoryRegistration}
+                  onChange={(e) => {
+                    salesHistoryRegistration.onChange(e); // Inform react-hook-form
+                    if (e.target.files && e.target.files.length > 0) {
+                      setSalesFile(e.target.files[0]);
+                    } else {
+                      setSalesFile(null);
+                    }
+                  }}
+                  className="pt-2 h-auto"
+                />
                 {errors.salesHistory && <p className="text-destructive text-sm mt-2">{errors.salesHistory.message as string}</p>}
               </div>
             )}
