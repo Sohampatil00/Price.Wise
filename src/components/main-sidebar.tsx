@@ -9,7 +9,8 @@ import {
   Users,
   Warehouse,
   FileText,
-  Bot
+  Bot,
+  User,
 } from "lucide-react";
 
 import {
@@ -37,6 +38,7 @@ const navItems = [
   { href: "/dashboard/competitors", icon: Users, label: "Competitors" },
   { href: "/dashboard/emergency", icon: ShieldAlert, label: "Emergency" },
   { href: "/dashboard/reports", icon: FileText, label: "Reports" },
+  { href: "/dashboard/profile", icon: User, label: "Profile" },
 ];
 
 export function MainSidebar({ children }: { children: React.ReactNode }) {
