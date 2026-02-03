@@ -61,7 +61,7 @@ export default function DashboardPage() {
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${onboardingData.monthlySales?.toLocaleString('en-US', {maximumFractionDigits: 0}) || '0'}</div>
+                <div className="text-2xl font-bold">Rs{onboardingData.monthlySales?.toLocaleString('en-IN', {maximumFractionDigits: 0}) || '0'}</div>
                 <p className="text-xs text-muted-foreground">
                   Based on your onboarding data
                 </p>

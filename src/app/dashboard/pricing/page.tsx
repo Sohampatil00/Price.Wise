@@ -82,7 +82,7 @@ export default function PricingPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="basePrice">Base Price ($)</Label>
+                  <Label htmlFor="basePrice">Base Price (Rs)</Label>
                   <Input id="basePrice" type="number" step="0.01" {...register("basePrice")} />
                   {errors.basePrice && <p className="text-destructive text-sm">{errors.basePrice.message}</p>}
                 </div>
@@ -144,7 +144,7 @@ export default function PricingPage() {
                     <CardContent className="space-y-4">
                         <div className="text-center">
                             <p className="text-sm text-muted-foreground">Calculated Fair Price</p>
-                            <p className="text-5xl font-bold text-primary">${result.fairPrice.toFixed(2)}</p>
+                            <p className="text-5xl font-bold text-primary">Rs{result.fairPrice.toFixed(2)}</p>
                         </div>
                         <Alert>
                             <Sparkles className="h-4 w-4" />

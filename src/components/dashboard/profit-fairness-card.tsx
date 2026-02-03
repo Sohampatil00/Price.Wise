@@ -79,7 +79,7 @@ export function ProfitFairnessCard() {
                                 fontSize={12}
                                 tickLine={false}
                                 axisLine={false}
-                                tickFormatter={(value) => `$${value}`}
+                                tickFormatter={(value) => `Rs${value}`}
                             />
                             <Tooltip content={<ChartTooltipContent />} cursor={{fill: 'hsl(var(--background))'}} />
                             <Legend wrapperStyle={{fontSize: "12px"}}/>

@@ -78,7 +78,7 @@ export function RecentSalesCard() {
                     {sale.customerEmail}
                   </p>
                 </div>
-                <div className="ml-auto font-medium">+${sale.sale.toFixed(2)}</div>
+                <div className="ml-auto font-medium">+Rs{sale.sale.toFixed(2)}</div>
               </div>
             ))}
           </div>

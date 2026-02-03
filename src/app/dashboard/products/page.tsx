@@ -182,7 +182,7 @@ export default function ProductsPage() {
                                 </div>
                             </TableCell>
                             <TableCell>{product.stock}</TableCell>
-                            <TableCell>{product.price ? `$${product.price.toFixed(2)}` : 'N/A'}</TableCell>
+                            <TableCell>{product.price ? `Rs${product.price.toFixed(2)}` : 'N/A'}</TableCell>
                             <TableCell>
                                 {product.tag && <Badge variant="secondary">{product.tag}</Badge>}
                             </TableCell>

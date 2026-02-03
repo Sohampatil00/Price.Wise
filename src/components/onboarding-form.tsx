@@ -254,7 +254,7 @@ export default function OnboardingForm() {
             {step === 1 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="monthlySales">Monthly Sales Volume ($)</Label>
+                  <Label htmlFor="monthlySales">Monthly Sales Volume (Rs)</Label>
                   <Input id="monthlySales" type="number" {...register("monthlySales")} />
                 </div>
                 <div className="space-y-2">
@@ -262,7 +262,7 @@ export default function OnboardingForm() {
                   <Input id="avgProfitMargin" type="number" {...register("avgProfitMargin")} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="avgCostPerProduct">Average Cost per Product ($)</Label>
+                  <Label htmlFor="avgCostPerProduct">Average Cost per Product (Rs)</Label>
                   <Input id="avgCostPerProduct" type="number" {...register("avgCostPerProduct")} />
                 </div>
                 <div className="space-y-2">
@@ -345,7 +345,7 @@ export default function OnboardingForm() {
                                         <BarChart data={analysisResult.optimalPriceRanges} margin={{left: -10, right: 10}}>
                                             <CartesianGrid vertical={false} />
                                             <XAxis dataKey="productName" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} interval={0}/>
-                                            <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                                            <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `Rs${value}`} />
                                             <Tooltip cursor={{ fill: 'hsl(var(--background))' }} content={<ChartTooltipContent />} />
                                             <Legend wrapperStyle={{fontSize: "12px"}}/>
                                             <Bar dataKey="minPrice" name="Min Price" fill="var(--color-minPrice)" radius={[4, 4, 0, 0]} />
@@ -412,7 +412,7 @@ export default function OnboardingForm() {
                                             {analysisResult.pricingBaseline.map((p) => (
                                                 <TableRow key={p.productName}>
                                                     <TableCell className="font-medium">{p.productName}</TableCell>
-                                                    <TableCell className="text-right">${p.baselinePrice.toFixed(2)}</TableCell>
+                                                    <TableCell className="text-right">Rs{p.baselinePrice.toFixed(2)}</TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>
