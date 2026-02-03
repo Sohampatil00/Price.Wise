@@ -1,9 +1,44 @@
+"use client"; // Needs to be client component
+
+import { useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { inventoryData } from "@/lib/data";
+import { useAppState } from '@/lib/store';
 
 export default function ProductsPage() {
+    const { onboardingData } = useAppState();
+
+    const inventoryData = useMemo(() => {
+        if (!onboardingData.salesHistory) {
+            return [];
+        }
+
+        const salesLines = onboardingData.salesHistory.split('\n').slice(1); // skip header
+        const products = new Map<string, { stock: number }>();
+        salesLines.forEach(line => {
+            const columns = line.split(',');
+            if (columns.length > 1 && columns[1]) {
+                const productName = columns[1].trim();
+                if (!products.has(productName)) {
+                    products.set(productName, { stock: Math.floor(Math.random() * 500) });
+                }
+            }
+        });
+
+        const essentialTags = (onboardingData.analysis?.essentialGoodsTags || '')
+            .split(',')
+            .map(tag => tag.trim().toLowerCase());
+        
+        return Array.from(products.entries()).map(([name, data]) => ({
+            name,
+            value: data.stock,
+            essential: essentialTags.includes(name.toLowerCase())
+        }));
+
+    }, [onboardingData]);
+
+
   return (
     <div className="p-4 md:p-8">
       <h2 className="text-3xl font-bold tracking-tight font-headline mb-4">

@@ -31,6 +31,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { analyzeSalesData, AnalyzeSalesDataOutput } from "@/ai/flows/analyze-sales-data";
+import { useAppState } from "@/lib/store";
 
 const businessDetailsSchema = z.object({
   name: z.string().min(2, "Business name is required"),
@@ -93,6 +94,7 @@ export default function OnboardingForm() {
   const [analysisResult, setAnalysisResult] = useState<AnalyzeSalesDataOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [salesFile, setSalesFile] = useState<File | null>(null);
+  const { setOnboardingData } = useAppState();
 
   const form = useForm<FormData>({
     resolver: zodResolver(
@@ -108,6 +110,7 @@ export default function OnboardingForm() {
     const fields = steps[step].fields;
     const output = await trigger(fields as any, { shouldFocus: true });
     if (!output) return;
+    setOnboardingData(form.getValues());
     setStep((prev) => prev + 1);
   };
 
@@ -119,6 +122,7 @@ export default function OnboardingForm() {
     setIsLoading(true);
     setError(null);
     setAnalysisResult(null);
+    setOnboardingData(data);
 
     const file = salesFile;
     if (!file) {
@@ -135,6 +139,7 @@ export default function OnboardingForm() {
         const businessDetails = `Business: ${data.name} (${data.type}), Region: ${data.region}, Target Customer: ${data.targetCustomer}`;
         const result = await analyzeSalesData({ salesData, businessDetails });
         setAnalysisResult(result);
+        setOnboardingData({ salesHistory: salesData, analysis: result });
       } catch (e) {
         setError("Failed to analyze data. Please check the CSV format and try again.");
       } finally {

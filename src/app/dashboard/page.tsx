@@ -1,5 +1,6 @@
+"use client";
+
 import {
-  Activity,
   Calendar as CalendarIcon,
   DollarSign,
   Package,
@@ -25,13 +26,16 @@ import { InventoryHealthCard } from "@/components/dashboard/inventory-health-car
 import { ProfitFairnessCard } from "@/components/dashboard/profit-fairness-card";
 import { RecentSalesCard } from "@/components/dashboard/recent-sales-card";
 import EmergencyStatusCard from "@/components/dashboard/emergency-status-card";
+import { useAppState } from "@/lib/store";
 
 export default function DashboardPage() {
+  const { onboardingData } = useAppState();
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight font-headline">
-          Seller Dashboard
+          {onboardingData.name ? `${onboardingData.name} Dashboard` : "Seller Dashboard"}
         </h2>
         <div className="flex items-center space-x-2">
           <Button>
@@ -58,9 +62,9 @@ export default function DashboardPage() {
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">$45,231.89</div>
+                <div className="text-2xl font-bold">${onboardingData.monthlySales?.toLocaleString('en-US', {maximumFractionDigits: 0}) || '0'}</div>
                 <p className="text-xs text-muted-foreground">
-                  +20.1% from last month
+                  Based on your onboarding data
                 </p>
               </CardContent>
             </Card>
@@ -73,9 +77,9 @@ export default function DashboardPage() {
                 <Package className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">+2350</div>
+                <div className="text-2xl font-bold">+{onboardingData.productCount || '0'}</div>
                 <p className="text-xs text-muted-foreground">
-                  +180.1% from last month
+                  Across your inventory
                 </p>
               </CardContent>
             </Card>
