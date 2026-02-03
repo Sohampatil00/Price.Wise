@@ -41,19 +41,22 @@ const navItems = [
   { href: "/dashboard/profile", icon: User, label: "Profile" },
 ];
 
+import { UserButton, useUser } from "@clerk/nextjs";
+
 export function MainSidebar({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const userAvatar = PlaceHolderImages.find(img => img.id === 'user-avatar');
+  const { user } = useUser();
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
 
 
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+        {/* ... existing header and content ... */}
         <SidebarHeader>
           <div className="flex items-center justify-between p-2">
             <div className="text-primary-foreground">
-              <Logo className="text-white"/>
+              <Logo className="text-white" />
             </div>
             <SidebarTrigger className="text-sidebar-foreground hover:text-white" />
           </div>
@@ -75,24 +78,25 @@ export function MainSidebar({ children }: { children: React.ReactNode }) {
             ))}
           </SidebarMenu>
           <div className="flex-grow"></div>
-           <div className="p-4 m-2 rounded-lg bg-sidebar-accent text-sidebar-accent-foreground group-data-[collapsible=icon]:hidden">
-                <div className="flex items-center gap-2 mb-2">
-                    <Bot size={20}/>
-                    <h3 className="font-semibold">AI Assistant</h3>
-                </div>
-                <p className="text-sm mb-4">Get help with pricing strategies, supply chain and more.</p>
-                <Button variant="secondary" size="sm" className="w-full bg-primary text-primary-foreground" onClick={() => setIsAssistantOpen(true)}>Ask AI</Button>
+          <div className="p-4 m-2 rounded-lg bg-sidebar-accent text-sidebar-accent-foreground group-data-[collapsible=icon]:hidden">
+            <div className="flex items-center gap-2 mb-2">
+              <Bot size={20} />
+              <h3 className="font-semibold">AI Assistant</h3>
             </div>
+            <p className="text-sm mb-4">Get help with pricing strategies, supply chain and more.</p>
+            <Button variant="secondary" size="sm" className="w-full bg-primary text-primary-foreground" onClick={() => setIsAssistantOpen(true)}>Ask AI</Button>
+          </div>
         </SidebarContent>
         <SidebarFooter>
           <div className="flex items-center gap-3 p-2">
-            <Avatar className="h-8 w-8">
-              {userAvatar && <AvatarImage src={userAvatar.imageUrl} data-ai-hint={userAvatar.imageHint} />}
-              <AvatarFallback>U</AvatarFallback>
-            </Avatar>
+            <UserButton afterSignOutUrl="/" />
             <div className="flex flex-col overflow-hidden group-data-[collapsible=icon]:hidden">
-              <span className="text-sm font-semibold text-sidebar-foreground truncate">Admin User</span>
-              <span className="text-xs text-sidebar-foreground/70 truncate">admin@equitable.edge</span>
+              <span className="text-sm font-semibold text-sidebar-foreground truncate">
+                {user?.fullName || user?.firstName || "User"}
+              </span>
+              <span className="text-xs text-sidebar-foreground/70 truncate">
+                {user?.primaryEmailAddress?.emailAddress}
+              </span>
             </div>
           </div>
         </SidebarFooter>

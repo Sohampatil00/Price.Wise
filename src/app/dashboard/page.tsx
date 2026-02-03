@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   Calendar as CalendarIcon,
   DollarSign,
@@ -28,10 +28,22 @@ import { ProfitFairnessCard } from "@/components/dashboard/profit-fairness-card"
 import { RecentSalesCard } from "@/components/dashboard/recent-sales-card";
 import { useAppState } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
+import { UserButton, useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+
 
 export default function DashboardPage() {
+  const { user } = useUser();
   const { onboardingData } = useAppState();
   const { toast } = useToast();
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState("overview");
+
+  useEffect(() => {
+    if (!onboardingData.name) {
+      router.push("/dashboard/onboarding");
+    }
+  }, [onboardingData, router]);
 
   const activeProductsCount = useMemo(() => {
     if (!onboardingData.salesHistory) {
@@ -54,22 +66,22 @@ export default function DashboardPage() {
     }
 
     const priceRanges = new Map(onboardingData.analysis.optimalPriceRanges.map(p => [p.productName.trim().toLowerCase(), { min: p.minPrice, max: p.maxPrice }]));
-    
+
     const salesLines = onboardingData.salesHistory.split('\n').slice(1).filter(line => line.trim() !== '');
-    
+
     if (salesLines.length === 0) {
       return 100;
     }
 
     let compliantSales = 0;
     let totalSalesWithRange = 0;
-    
+
     salesLines.forEach(line => {
       const columns = line.split(',');
       if (columns.length >= 4) {
         const productName = columns[1].trim().toLowerCase();
         const price = parseFloat(columns[2]);
-        
+
         const range = priceRanges.get(productName);
         if (range) {
           totalSalesWithRange++;
@@ -79,9 +91,9 @@ export default function DashboardPage() {
         }
       }
     });
-    
+
     if (totalSalesWithRange === 0) {
-        return 100;
+      return 100;
     }
 
     return (compliantSales / totalSalesWithRange) * 100;
@@ -102,13 +114,13 @@ export default function DashboardPage() {
     const { analysis, name, type, region, targetCustomer } = onboardingData;
 
     const escapeCsvCell = (cellData: any) => {
-        const stringData = String(cellData === null || cellData === undefined ? '' : cellData);
-        if (stringData.includes(',') || stringData.includes('"') || stringData.includes('\n')) {
-            return `"${stringData.replace(/"/g, '""')}"`;
-        }
-        return stringData;
+      const stringData = String(cellData === null || cellData === undefined ? '' : cellData);
+      if (stringData.includes(',') || stringData.includes('"') || stringData.includes('\n')) {
+        return `"${stringData.replace(/"/g, '""')}"`;
+      }
+      return stringData;
     };
-    
+
     let csvString = "";
 
     csvString += `PriceWise Report for,${escapeCsvCell(name)}\n\n`;
@@ -125,28 +137,28 @@ export default function DashboardPage() {
     csvString += "Optimal Price Ranges\n";
     csvString += "Product Name,Min Price (Rs),Max Price (Rs)\n";
     analysis.optimalPriceRanges.forEach(p => {
-        csvString += `${escapeCsvCell(p.productName)},${escapeCsvCell(p.minPrice.toFixed(2))},${escapeCsvCell(p.maxPrice.toFixed(2))}\n`;
+      csvString += `${escapeCsvCell(p.productName)},${escapeCsvCell(p.minPrice.toFixed(2))},${escapeCsvCell(p.maxPrice.toFixed(2))}\n`;
     });
     csvString += "\n";
 
     csvString += "Demand Elasticity\n";
     csvString += "Product Name,Elasticity,Analysis\n";
     analysis.demandElasticity.forEach(p => {
-        csvString += `${escapeCsvCell(p.productName)},${escapeCsvCell(p.elasticity.toFixed(2))},${escapeCsvCell(p.analysis)}\n`;
+      csvString += `${escapeCsvCell(p.productName)},${escapeCsvCell(p.elasticity.toFixed(2))},${escapeCsvCell(p.analysis)}\n`;
     });
     csvString += "\n";
 
     csvString += "Pricing Baseline\n";
     csvString += "Product Name,Baseline Price (Rs)\n";
     analysis.pricingBaseline.forEach(p => {
-        csvString += `${escapeCsvCell(p.productName)},${escapeCsvCell(p.baselinePrice.toFixed(2))}\n`;
+      csvString += `${escapeCsvCell(p.productName)},${escapeCsvCell(p.baselinePrice.toFixed(2))}\n`;
     });
     csvString += "\n";
 
     csvString += "Essential Goods\n";
     csvString += "Product Name\n";
     analysis.essentialGoods.forEach(good => {
-        csvString += `${escapeCsvCell(good)}\n`;
+      csvString += `${escapeCsvCell(good)}\n`;
     });
     csvString += "\n";
 
@@ -165,21 +177,31 @@ export default function DashboardPage() {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight font-headline">
-          {onboardingData.name ? `${onboardingData.name} Dashboard` : "Seller Dashboard"}
-        </h2>
+        <div className="flex items-center space-x-4">
+          <UserButton afterSignOutUrl="/" />
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight font-headline">
+              {onboardingData.name ? `${onboardingData.name} Dashboard` : "Seller Dashboard"}
+            </h2>
+            {user && (
+              <p className="text-sm text-muted-foreground">
+                Welcome back, {user.primaryEmailAddress?.emailAddress}
+              </p>
+            )}
+          </div>
+        </div>
         <div className="flex items-center space-x-2">
-          <Button onClick={handleDownloadReport}>
+          <Button onClick={() => setActiveTab("reports")}>
             <CalendarIcon className="mr-2 h-4 w-4" />
-            Download Report
+            View Reports
           </Button>
         </div>
       </div>
-      <Tabs defaultValue="overview" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="reports" disabled>
+          <TabsTrigger value="reports">
             Reports
           </TabsTrigger>
         </TabsList>
@@ -193,7 +215,7 @@ export default function DashboardPage() {
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">Rs{onboardingData.monthlySales?.toLocaleString('en-IN', {maximumFractionDigits: 0}) || '0'}</div>
+                <div className="text-2xl font-bold">Rs{onboardingData.monthlySales?.toLocaleString('en-IN', { maximumFractionDigits: 0 }) || '0'}</div>
                 <p className="text-xs text-muted-foreground">
                   Based on your onboarding data
                 </p>
@@ -230,18 +252,34 @@ export default function DashboardPage() {
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
             <div className="col-span-4">
-                <DemandForecastCard />
+              <DemandForecastCard />
             </div>
             <div className="col-span-4 lg:col-span-3">
-                <RecentSalesCard />
+              <RecentSalesCard />
             </div>
           </div>
         </TabsContent>
         <TabsContent value="analytics" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
-                <InventoryHealthCard />
-                <ProfitFairnessCard />
-            </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+            <InventoryHealthCard />
+            <ProfitFairnessCard />
+          </div>
+        </TabsContent>
+        <TabsContent value="reports" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Business Reports</CardTitle>
+              <CardDescription>
+                Download detailed reports about your business performance and AI insights.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={handleDownloadReport}>
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                Download Full CSV Report
+              </Button>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
