@@ -98,6 +98,7 @@ export default function OnboardingForm() {
       (steps[step].schema || z.object({})) as z.ZodType<any, any>
     ),
     mode: "onChange",
+    shouldUnregister: false,
   });
 
   const { register, handleSubmit, trigger, formState: { errors, isValid } } = form;
@@ -118,7 +119,13 @@ export default function OnboardingForm() {
     setError(null);
     setAnalysisResult(null);
 
-    const file = data.salesHistory[0];
+    const file = data.salesHistory?.[0];
+    if (!file) {
+        setError("Sales history file not found. Please go back and upload it.");
+        setIsLoading(false);
+        return;
+    }
+    
     const reader = new FileReader();
     reader.readAsText(file);
     reader.onload = async () => {
