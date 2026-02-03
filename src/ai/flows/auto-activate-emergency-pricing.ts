@@ -87,11 +87,11 @@ const autoActivateEmergencyPricingFlow = ai.defineFlow(
     const notifications: string[] = [];
     if (output?.shouldFreezePricing) {
       notifications.push(
-        `Emergency pricing activated in ${input.crisisAlert.crisisAlert.location} due to ${input.crisisAlert.crisisAlert.type}. Prices for essential goods have been frozen.`
+        `Emergency pricing activated in ${input.crisisAlert.location} due to ${input.crisisAlert.type}. Prices for essential goods have been frozen.`
       );
     } else {
       notifications.push(
-        `Emergency pricing was NOT activated in ${input.crisisAlert.crisisAlert.location} due to ${input.crisisAlert.crisisAlert.type}.`
+        `Emergency pricing was NOT activated in ${input.crisisAlert.location} due to ${input.crisisAlert.type}.`
       );
     }
 
@@ -111,5 +111,3 @@ const autoActivateEmergencyPricingFlow = ai.defineFlow(
 export async function autoActivateEmergencyPricing(input: AutoActivateEmergencyPricingInput): Promise<AutoActivateEmergencyPricingOutput> {
   return autoActivateEmergencyPricingFlow(input);
 }
-
-export type {PricingDecisionSchema};
