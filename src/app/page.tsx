@@ -1,4 +1,4 @@
-import OnboardingForm from "@/components/onboarding-form";
+import OnboardingClientWrapper from "@/components/onboarding-client-wrapper";
 import { Logo } from "@/components/logo";
 
 export default function OnboardingPage() {
@@ -14,7 +14,7 @@ export default function OnboardingPage() {
             Let's set up your business for intelligent pricing and supply chain management.
           </p>
         </div>
-        <OnboardingForm />
+        <OnboardingClientWrapper />
       </div>
     </div>
   );
