@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useMemo } from "react"
 import { Line, LineChart, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts"
 import {
   Card,
@@ -10,53 +10,81 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { ChartContainer, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useAppState } from "@/lib/store"
+import { format, parseISO } from 'date-fns'
 
 const chartConfig = {
   demand: {
-    label: "Demand",
+    label: "Total Sales",
     color: "hsl(var(--primary))",
   },
 } satisfies ChartConfig
 
-const generateDemandData = () => [
-    { month: "Jan", demand: Math.floor(Math.random() * 2000) + 1000 },
-    { month: "Feb", demand: Math.floor(Math.random() * 2000) + 1200 },
-    { month: "Mar", demand: Math.floor(Math.random() * 2000) + 1500 },
-    { month: "Apr", demand: Math.floor(Math.random() * 2000) + 1300 },
-    { month: "May", demand: Math.floor(Math.random() * 2000) + 1600 },
-    { month: "Jun", demand: Math.floor(Math.random() * 2000) + 2000 },
-    { month: "Jul", demand: Math.floor(Math.random() * 2000) + 2300 },
-    { month: "Aug", demand: Math.floor(Math.random() * 2000) + 2200 },
-    { month: "Sep", demand: Math.floor(Math.random() * 2000) + 2500 },
-    { month: "Oct", demand: Math.floor(Math.random() * 2000) + 2100 },
-    { month: "Nov", demand: Math.floor(Math.random() * 2000) + 2700 },
-    { month: "Dec", demand: Math.floor(Math.random() * 2000) + 3000 },
-];
-
-
 export function DemandForecastCard() {
-  const [data, setData] = useState<ReturnType<typeof generateDemandData> | null>(null)
+  const { onboardingData } = useAppState();
 
-  useEffect(() => {
-    // This will only run on the client, after initial hydration
-    setData(generateDemandData())
-  }, [])
+  const chartData = useMemo(() => {
+    if (!onboardingData.salesHistory) {
+      return [];
+    }
+
+    const salesLines = onboardingData.salesHistory.split('\n').slice(1).filter(line => line.trim() !== '');
+    
+    // Aggregate sales by month
+    const monthlyDemand: { [key: string]: { date: Date, demand: number } } = {};
+
+    salesLines.forEach(line => {
+      const columns = line.split(',');
+      if (columns.length < 4) return;
+
+      const dateStr = columns[0];
+      const quantity = parseInt(columns[3], 10);
+      
+      try {
+        const date = parseISO(dateStr);
+        if (!isNaN(date.getTime()) && !isNaN(quantity)) {
+          // Use 'yyyy-MM' as a key to group by month and year
+          const monthKey = format(date, 'yyyy-MM');
+          
+          if (!monthlyDemand[monthKey]) {
+            monthlyDemand[monthKey] = {
+                date: new Date(date.getFullYear(), date.getMonth(), 1),
+                demand: 0
+            };
+          }
+          monthlyDemand[monthKey].demand += quantity;
+        }
+      } catch (e) {
+        // Ignore lines with invalid date formats
+      }
+    });
+
+    // Convert to array and sort by date
+    return Object.values(monthlyDemand)
+      .sort((a, b) => a.date.getTime() - b.date.getTime())
+      .map(item => ({
+        month: format(item.date, 'MMM yy'),
+        demand: item.demand,
+      }));
+
+  }, [onboardingData.salesHistory]);
 
   return (
     <Card className="h-full">
       <CardHeader>
         <CardTitle>Demand Forecast</CardTitle>
         <CardDescription>
-          Projected demand for your products over the next 12 months.
+          {chartData.length > 0
+            ? "Monthly product demand based on your sales history."
+            : "Projected demand will appear here once you provide sales data."}
         </CardDescription>
       </CardHeader>
       <CardContent className="pl-2">
-        {data ? (
+        {chartData.length > 0 ? (
           <ChartContainer config={chartConfig} className="h-[300px] w-full">
               <LineChart
                   accessibilityLayer
-                  data={data}
+                  data={chartData}
                   margin={{
                       top: 5,
                       right: 10,
@@ -71,6 +99,7 @@ export function DemandForecastCard() {
                       fontSize={12}
                       tickLine={false}
                       axisLine={false}
+                      interval={chartData.length > 12 ? Math.floor(chartData.length / 12) : 0}
                   />
                   <YAxis
                       stroke="#888888"
@@ -80,7 +109,7 @@ export function DemandForecastCard() {
                       tickFormatter={(value) => `${value}`}
                   />
                   <Tooltip
-                      content={<ChartTooltipContent />}
+                      content={<ChartTooltipContent labelClassName="text-sm" indicator="dot" />}
                       cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 2, strokeDasharray: "3 3" }}
                    />
                   <Line
@@ -94,8 +123,8 @@ export function DemandForecastCard() {
               </LineChart>
           </ChartContainer>
         ) : (
-          <div className="h-[300px] w-full p-2">
-            <Skeleton className="h-full w-full" />
+          <div className="h-[300px] w-full flex items-center justify-center">
+            <p className="text-muted-foreground">No sales data to display forecast.</p>
           </div>
         )}
       </CardContent>
