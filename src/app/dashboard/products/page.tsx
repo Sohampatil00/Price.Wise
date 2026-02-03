@@ -11,12 +11,14 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Upload } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 
 const productSchema = z.object({
@@ -47,6 +49,9 @@ export default function ProductsPage() {
     const [productToEdit, setProductToEdit] = useState<Product | null>(null);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+    const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+    const [csvFile, setCsvFile] = useState<File | null>(null);
+    const { toast } = useToast();
 
     const [isInitialized, setIsInitialized] = useState(false);
 
@@ -161,15 +166,86 @@ export default function ProductsPage() {
 
   const photoRegistration = form.register("photo");
 
+  const handleImport = () => {
+    if (!csvFile) {
+        toast({
+            title: "No file selected",
+            description: "Please select a CSV file to import.",
+            variant: "destructive",
+        });
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const text = e.target?.result;
+        if (typeof text !== 'string') {
+            toast({ title: "Error reading file", variant: "destructive" });
+            return;
+        }
+
+        try {
+            const lines = text.split('\n').filter(line => line.trim() !== '');
+            const headerLine = lines.shift()?.trim().toLowerCase();
+            const expectedHeader = 'name,price,stock,essential,imageurl,tag';
+
+            if (!headerLine || headerLine.replace(/\s/g, '') !== expectedHeader) {
+                 toast({
+                    title: "Invalid CSV Header",
+                    description: `Please ensure the header is: ${expectedHeader}`,
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            const newProducts: Product[] = lines.map(line => {
+                const values = line.split(',');
+                return {
+                    id: `csv-${Date.now()}-${Math.random()}`,
+                    name: values[0]?.trim() || 'Unnamed Product',
+                    price: parseFloat(values[1]) || 0,
+                    stock: parseInt(values[2], 10) || 0,
+                    essential: values[3]?.trim().toLowerCase() === 'true',
+                    photo: values[4]?.trim() || undefined,
+                    tag: values[5]?.trim() || undefined,
+                };
+            }).filter(p => p.name !== 'Unnamed Product');
+
+            setProducts(current => [...current, ...newProducts]);
+            
+            toast({
+                title: "Import Successful",
+                description: `Added ${newProducts.length} new products.`,
+            });
+            setIsImportDialogOpen(false);
+            setCsvFile(null);
+
+        } catch (error) {
+            toast({
+                title: "Import Failed",
+                description: "There was an error parsing the CSV file. Please check the format.",
+                variant: "destructive",
+            });
+        }
+    };
+    reader.readAsText(csvFile);
+  };
+
+
   return (
     <div className="p-4 md:p-8">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-3xl font-bold tracking-tight font-headline">
             Products
         </h2>
-        <Button onClick={handleAddClick}>
-            <PlusCircle className="mr-2 h-4 w-4" /> Add Product
-        </Button>
+        <div className="flex items-center gap-2">
+            <Button onClick={() => setIsImportDialogOpen(true)} variant="outline">
+                <Upload className="mr-2 h-4 w-4" /> Import CSV
+            </Button>
+            <Button onClick={handleAddClick}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Product
+            </Button>
+        </div>
       </div>
       <Card>
         <CardHeader>
@@ -288,7 +364,47 @@ export default function ProductsPage() {
               </AlertDialogFooter>
           </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Import Products from CSV</DialogTitle>
+                <DialogDescription>
+                    Upload a CSV file to bulk import products into your inventory.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+                <Alert>
+                    <AlertTitle>CSV Format Requirements</AlertTitle>
+                    <AlertDescription>
+                        <p>The CSV file must have a header row with the following columns in order:</p>
+                        <code className="text-sm font-mono p-1 bg-muted rounded">name,price,stock,essential,imageUrl,tag</code>
+                        <ul className="list-disc pl-5 mt-2 text-xs space-y-1">
+                            <li><b>name:</b> Product Name (Text)</li>
+                            <li><b>price:</b> Price (Number)</li>
+                            <li><b>stock:</b> Stock quantity (Number)</li>
+                            <li><b>essential:</b> TRUE or FALSE</li>
+                            <li><b>imageUrl:</b> Public URL to an image (Optional)</li>
+                            <li><b>tag:</b> A category tag (Optional)</li>
+                        </ul>
+                    </AlertDescription>
+                </Alert>
+                <div className="space-y-2">
+                    <Label htmlFor="csvFile">CSV File</Label>
+                    <Input 
+                        id="csvFile" 
+                        type="file" 
+                        accept=".csv"
+                        onChange={(e) => setCsvFile(e.target.files ? e.target.files[0] : null)}
+                    />
+                </div>
+            </div>
+            <DialogFooter>
+                <Button variant="outline" onClick={() => setIsImportDialogOpen(false)}>Cancel</Button>
+                <Button onClick={handleImport} disabled={!csvFile}>Import Products</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
-
-    
+}
