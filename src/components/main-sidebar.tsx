@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   BarChart3,
   Home,
@@ -28,6 +29,7 @@ import { Logo } from "@/components/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { AiAssistant } from "./ai-assistant";
 
 const navItems = [
   { href: "/dashboard", icon: Home, label: "Dashboard" },
@@ -42,6 +44,7 @@ const navItems = [
 export function MainSidebar({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const userAvatar = PlaceHolderImages.find(img => img.id === 'user-avatar');
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
 
 
   return (
@@ -78,7 +81,7 @@ export function MainSidebar({ children }: { children: React.ReactNode }) {
                     <h3 className="font-semibold">AI Assistant</h3>
                 </div>
                 <p className="text-sm mb-4">Get help with pricing strategies, supply chain and more.</p>
-                <Button variant="secondary" size="sm" className="w-full bg-primary text-primary-foreground">Ask AI</Button>
+                <Button variant="secondary" size="sm" className="w-full bg-primary text-primary-foreground" onClick={() => setIsAssistantOpen(true)}>Ask AI</Button>
             </div>
         </SidebarContent>
         <SidebarFooter>
@@ -94,7 +97,10 @@ export function MainSidebar({ children }: { children: React.ReactNode }) {
           </div>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset>{children}</SidebarInset>
+      <SidebarInset>
+        {children}
+        <AiAssistant open={isAssistantOpen} onOpenChange={setIsAssistantOpen} />
+      </SidebarInset>
     </SidebarProvider>
   );
 }
