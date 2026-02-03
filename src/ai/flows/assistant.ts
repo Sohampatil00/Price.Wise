@@ -37,8 +37,8 @@ const prompt = ai.definePrompt({
   input: {schema: AskAssistantInputSchema},
   output: {schema: AskAssistantOutputSchema},
   prompt: `You are an expert business assistant for pricing and supply chain.
-Your goal is to answer the user's question and provide predictions based on the available data context.
-Analyze all the provided information to give the most accurate and helpful response.
+Your goal is to answer the user's question by providing data-backed, calculative, and predictive answers.
+Analyze all the provided information to give the most accurate and helpful response. When making predictions, provide specific numbers and calculations.
 
 Here is the available context:
 {{{context}}}
@@ -46,7 +46,7 @@ Here is the available context:
 User's question:
 {{{question}}}
 
-Provide a clear, data-backed answer. If you are making a prediction, state it clearly.`,
+Provide a clear, data-backed answer. Your predictions must be calculative and include the numbers you used to reach your conclusion.`,
 });
 
 const askAssistantFlow = ai.defineFlow(
