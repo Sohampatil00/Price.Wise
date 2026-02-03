@@ -24,25 +24,32 @@ const AnalyzeSalesDataInputSchema = z.object({
 });
 export type AnalyzeSalesDataInput = z.infer<typeof AnalyzeSalesDataInputSchema>;
 
+const ProductPriceRangeSchema = z.object({
+  productName: z.string().describe('The name of the product.'),
+  minPrice: z.number().describe('The recommended minimum price.'),
+  maxPrice: z.number().describe('The recommended maximum price.'),
+});
+
+const ProductBaselineSchema = z.object({
+  productName: z.string().describe('The name of the product.'),
+  baselinePrice: z.number().describe('The baseline fair price.'),
+});
+
+const ProductElasticitySchema = z.object({
+    productName: z.string().describe('The name of the product.'),
+    elasticity: z.number().describe('The price elasticity of demand (e.g., -1.5). A value between -1 and 0 is inelastic, less than -1 is elastic.'),
+    analysis: z.string().describe('A brief analysis of the elasticity.'),
+});
+
 const AnalyzeSalesDataOutputSchema = z.object({
-  demandElasticity: z
-    .string()
-    .describe(
-      'Analysis of demand elasticity for each product, indicating how demand changes with price.'
-    ),
-  optimalPriceRanges: z
-    .string()
-    .describe(
-      'Recommended price ranges for each product to maximize revenue and profit.'
-    ),
-  essentialGoodsTags: z
-    .string()
-    .describe('Categorization of products by necessity to the target customer.'),
-  pricingBaseline: z
-    .string()
-    .describe('A baseline of what is a fair price during normal times.'),
+  summary: z.string().describe('A high-level summary of the analysis findings in plain English.'),
+  demandElasticity: z.array(ProductElasticitySchema).describe('Analysis of demand elasticity for the top 3-5 products.'),
+  optimalPriceRanges: z.array(ProductPriceRangeSchema).describe('Recommended price ranges for the top 3-5 products to maximize revenue.'),
+  essentialGoods: z.array(z.string()).describe('A list of product names classified as essential goods based on their necessity to the target customer.'),
+  pricingBaseline: z.array(ProductBaselineSchema).describe('A baseline of what is a fair price for the top 3-5 products during normal times.'),
 });
 export type AnalyzeSalesDataOutput = z.infer<typeof AnalyzeSalesDataOutputSchema>;
+
 
 export async function analyzeSalesData(input: AnalyzeSalesDataInput): Promise<AnalyzeSalesDataOutput> {
   return analyzeSalesDataFlow(input);
@@ -52,27 +59,23 @@ const analyzeSalesDataPrompt = ai.definePrompt({
   name: 'analyzeSalesDataPrompt',
   input: {schema: AnalyzeSalesDataInputSchema},
   output: {schema: AnalyzeSalesDataOutputSchema},
-  prompt: `You are an expert pricing analyst. Analyze the provided sales data to determine demand elasticity and suggest optimal price ranges.
+  prompt: `You are an expert pricing analyst. Analyze the provided sales data to determine demand elasticity, suggest optimal price ranges, identify essential goods, and establish a pricing baseline.
 
-Sales Data: {{{salesData}}}
+Sales Data:
+{{{salesData}}}
 
-Business Details: {{{businessDetails}}}
+Business Details:
+{{{businessDetails}}}
 
 Instructions:
+1.  Provide a high-level summary of your findings in a few sentences.
+2.  Analyze the sales data to determine the price elasticity of demand for the main products (top 3-5 by volume). A value between -1 and 0 is inelastic, less than -1 is elastic. Provide a brief text analysis for each.
+3.  Identify optimal price ranges (min and max) for these products to maximize revenue and profit.
+4.  Categorize products as essential goods based on their type and necessity to the target customer class mentioned in the business details.
+5.  Establish a baseline fair price for the main products based on typical margins during non-crisis times.
 
-1.  Analyze the sales data to determine the demand elasticity for each product.
-2.  Identify optimal price ranges for each product to maximize revenue and profit, considering factors like cost per product and competitor pricing.
-3.  Categorize products as essential goods based on their necessity to the target customer class (low/middle/high income), as determined in the onboarding data.
-4.  Establish a pricing baseline based on typical margins during non-crisis times.
-
-Output MUST be in plain English.
-
-Output: {
-  "demandElasticity": "",
-  "optimalPriceRanges": "",
-  "essentialGoodsTags": "",
-  "pricingBaseline": ""
-}`,
+Output MUST be a valid JSON object matching the defined schema.
+`,
 });
 
 const analyzeSalesDataFlow = ai.defineFlow(

@@ -14,7 +14,7 @@ import {
   Upload,
   Sparkles,
   Loader2,
-  BarChart,
+  BarChart as BarChartIcon,
   CheckCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,29 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { analyzeSalesData, AnalyzeSalesDataOutput } from "@/ai/flows/analyze-sales-data";
 import { useAppState } from "@/lib/store";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
+import {
+  ChartContainer,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import {
+    Table,
+    TableHeader,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 const businessDetailsSchema = z.object({
   name: z.string().min(2, "Business name is required"),
@@ -299,31 +322,103 @@ export default function OnboardingForm() {
                     </Alert>
                 )}
                 {analysisResult && (
-                    <div className="text-left">
-                        <Alert className="bg-accent/10 border-accent/30 text-accent-foreground mb-6">
-                            <BarChart className="h-5 w-5 text-accent" />
+                    <div className="text-left space-y-8">
+                        <Alert className="bg-accent/10 border-accent/30 text-accent-foreground">
+                            <BarChartIcon className="h-5 w-5 text-accent" />
                             <AlertTitle className="text-accent font-bold">Analysis Complete!</AlertTitle>
                             <AlertDescription>
-                                Your business data has been processed. Here are the initial insights from our AI.
+                                {analysisResult.summary}
                             </AlertDescription>
                         </Alert>
-                        <div className="space-y-4">
-                            <div>
-                                <h3 className="font-semibold">Demand Elasticity</h3>
-                                <p className="text-sm text-muted-foreground">{analysisResult.demandElasticity}</p>
-                            </div>
-                            <div>
-                                <h3 className="font-semibold">Optimal Price Ranges</h3>
-                                <p className="text-sm text-muted-foreground">{analysisResult.optimalPriceRanges}</p>
-                            </div>
-                            <div>
-                                <h3 className="font-semibold">Essential Goods Tags</h3>
-                                <p className="text-sm text-muted-foreground">{analysisResult.essentialGoodsTags}</p>
-                            </div>
-                             <div>
-                                <h3 className="font-semibold">Pricing Baseline</h3>
-                                <p className="text-sm text-muted-foreground">{analysisResult.pricingBaseline}</p>
-                            </div>
+                
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Optimal Price Ranges</CardTitle>
+                                <CardDescription>Recommended price ranges to maximize revenue for your top products.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="pl-2">
+                                <ChartContainer config={{
+                                    minPrice: { label: 'Min Price', color: 'hsl(var(--chart-2))' },
+                                    maxPrice: { label: 'Max Price', color: 'hsl(var(--chart-1))' }
+                                }} className="h-[300px] w-full">
+                                    <ResponsiveContainer>
+                                        <BarChart data={analysisResult.optimalPriceRanges} margin={{left: -10, right: 10}}>
+                                            <CartesianGrid vertical={false} />
+                                            <XAxis dataKey="productName" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} interval={0}/>
+                                            <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                                            <Tooltip cursor={{ fill: 'hsl(var(--background))' }} content={<ChartTooltipContent />} />
+                                            <Legend wrapperStyle={{fontSize: "12px"}}/>
+                                            <Bar dataKey="minPrice" name="Min Price" fill="var(--color-minPrice)" radius={[4, 4, 0, 0]} />
+                                            <Bar dataKey="maxPrice" name="Max Price" fill="var(--color-maxPrice)" radius={[4, 4, 0, 0]} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </ChartContainer>
+                            </CardContent>
+                        </Card>
+                
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Demand Analysis</CardTitle>
+                                    <CardDescription>Price elasticity for your top products.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Product</TableHead>
+                                                <TableHead>Elasticity</TableHead>
+                                                <TableHead className="hidden sm:table-cell">Analysis</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {analysisResult.demandElasticity.map((p) => (
+                                                <TableRow key={p.productName}>
+                                                    <TableCell className="font-medium">{p.productName}</TableCell>
+                                                    <TableCell>
+                                                        <Badge variant={p.elasticity < -1 ? "destructive" : "secondary"}>
+                                                            {p.elasticity.toFixed(2)}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell className="hidden sm:table-cell">{p.analysis}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </CardContent>
+                            </Card>
+                
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Product Insights</CardTitle>
+                                    <CardDescription>Baselines and classifications.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <h4 className="font-medium text-sm mb-2">Essential Goods</h4>
+                                    <div className="flex flex-wrap gap-2 mb-4">
+                                        {analysisResult.essentialGoods.length > 0 ? analysisResult.essentialGoods.map(good => (
+                                            <Badge key={good} variant="default" className="bg-accent text-accent-foreground">{good}</Badge>
+                                        )) : <p className="text-sm text-muted-foreground">No essential goods identified.</p>}
+                                    </div>
+                                    <h4 className="font-medium text-sm mb-2">Pricing Baselines</h4>
+                                     <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Product</TableHead>
+                                                <TableHead className="text-right">Baseline Price</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {analysisResult.pricingBaseline.map((p) => (
+                                                <TableRow key={p.productName}>
+                                                    <TableCell className="font-medium">{p.productName}</TableCell>
+                                                    <TableCell className="text-right">${p.baselinePrice.toFixed(2)}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </CardContent>
+                            </Card>
                         </div>
                     </div>
                 )}
