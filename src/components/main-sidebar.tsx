@@ -34,7 +34,7 @@ import { AiAssistant } from "./ai-assistant";
 const navItems = [
   { href: "/dashboard", icon: Home, label: "Dashboard" },
   { href: "/dashboard/products", icon: Package, label: "Products" },
-  { href: "/dashboard/pricing", icon: BarChart3, label: "Pricing" },
+  { href: "/dashboard/pricing", icon: BarChart3, label: "Dynamic Pricing" },
   { href: "/dashboard/supply-chain", icon: Warehouse, label: "Supply Chain" },
   { href: "/dashboard/competitors", icon: Users, label: "Competitors" },
   { href: "/dashboard/reports", icon: FileText, label: "Reports" },

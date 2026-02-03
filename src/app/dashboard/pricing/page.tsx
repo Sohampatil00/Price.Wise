@@ -68,14 +68,14 @@ export default function PricingPage() {
   return (
     <div className="p-4 md:p-8">
       <h2 className="text-3xl font-bold tracking-tight font-headline mb-4">
-        Equity-Based Pricing
+        Dynamic Pricing Optimizer
       </h2>
       <div className="grid gap-8 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Fair Price Calculator</CardTitle>
+            <CardTitle>Dynamic Price Calculator</CardTitle>
             <CardDescription>
-              Use the AI-powered algorithm to calculate a fair price based on market and social factors.
+              Dynamically optimize your product pricing. This AI-powered tool calculates the ideal price based on demand, supply, regional factors, and equity considerations.
             </CardDescription>
           </CardHeader>
           <CardContent>
