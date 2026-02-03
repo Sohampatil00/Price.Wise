@@ -175,7 +175,7 @@ export default function OnboardingForm() {
     };
   };
 
-  const progress = ((step + 1) / steps.length) * 100;
+  const progress = ((step + 1) / (steps.length + 1)) * 100;
   
   const salesHistoryRegistration = register("salesHistory");
 
