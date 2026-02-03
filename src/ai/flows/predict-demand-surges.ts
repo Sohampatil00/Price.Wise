@@ -79,7 +79,7 @@ const predictDemandSurgeFlow = ai.defineFlow(
     name: 'predictDemandSurgeFlow',
     inputSchema: PredictDemandSurgeInputSchema,
     outputSchema: PredictDemandSurgeOutputSchema,
-    model: 'gemini-2.5-flash',
+    model: 'gemini-1.5-flash-latest',
   },
   async input => {
     const {output} = await prompt(input);
